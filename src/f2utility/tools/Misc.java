@@ -1,7 +1,11 @@
 package f2utility.tools;
 
 import f2utility.ToolBox;
+
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Random;
+
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -20,6 +24,8 @@ public class Misc extends VBox implements Tool {
     private final Label label;
     private final ComboBox mode;
     private final CheckBox trim;
+	private final static String NUMBERS = "0123456789";
+	private final static Random sRand = new SecureRandom();
 
     /**
      * Constructor for the Misc Tool
@@ -38,6 +44,7 @@ public class Misc extends VBox implements Tool {
         list.add("Uppercase");
         list.add("Sentence");
         list.add("Title");
+        list.add("Random");
         mode = new ComboBox(FXCollections.observableArrayList(list));
         mode.getSelectionModel().select(0);
         setMargin(mode, new Insets(0, 5, 0, 5));
@@ -58,6 +65,22 @@ public class Misc extends VBox implements Tool {
         trim.setMinWidth(100);
         trim.setMaxWidth(100);
         getChildren().add(trim);
+    }
+
+    public static String getExtension(String fileName) {
+        char ch;
+        int len;
+        if(fileName==null || 
+                (len = fileName.length())==0 || 
+                (ch = fileName.charAt(len-1))=='/' || ch=='\\' || //in the case of a directory
+                 ch=='.' ) //in the case of . or ..
+            return "";
+        int dotInd = fileName.lastIndexOf('.'),
+            sepInd = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+        if( dotInd<=sepInd )
+            return "";
+        else
+            return fileName.substring(dotInd+1).toLowerCase();
     }
 
     @Override
@@ -99,6 +122,16 @@ public class Misc extends VBox implements Tool {
                 name = nameTemp;
             } catch (Exception ex) {
             }
+        }
+        else if (mode.getSelectionModel().getSelectedItem().equals("Random"))
+        {
+        	String ext = getExtension(name);
+    		StringBuilder sb = new StringBuilder();
+    		for (int i = 0; i < 8; i++)
+    			sb.append(NUMBERS.charAt(sRand.nextInt(NUMBERS.length())));
+    		if (!ext.isEmpty())
+    			sb.append(".").append(ext);
+    		name = sb.toString();
         }
         //Trims if selected
         if (trim.isSelected()) {
